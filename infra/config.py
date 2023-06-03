@@ -1,0 +1,11 @@
+APP_NAME = "tinyurl"
+
+DOMAIN = "mdtiny.net"
+
+HOSTED_ZONE = "Z00549253CLKXN3DRZZRQ"
+
+DOCKER_IMAGE_TAG = "dev"
+
+DOCKER_IMAGE = f"madagra/tinyurl:{DOCKER_IMAGE_TAG}"
+
+APP_PORT = 3000

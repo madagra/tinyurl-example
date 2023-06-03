@@ -1,0 +1,8 @@
+- build TinyURL server with Redis caching locally
+- make basic infrastructure for that on AWS with accessible domain
+- scale it up, possibilities
+  - message queue to process requests in a distributed manner
+  - go routines
+  - autoscaling
+  - distributed database
+  
