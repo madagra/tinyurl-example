@@ -2,6 +2,23 @@
 
 Sample project to experiment with the system design with a TinyURL application
 
+## Test the application locally
+
+Use the following Python code to test the application locally:
+
+```python
+import requests
+
+url = "replace_with_valid_url"
+
+# shorten
+myobj = {'url': url}
+resp = requests.post(get_url(BASE_URL_LOCAL, "shorten"), json=myobj)
+
+# redirect
+short_url = resp.text
+requests.get(x.text, allow_redirects=True)
+```
 
 ## Run stress tests
 

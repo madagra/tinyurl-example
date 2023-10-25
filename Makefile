@@ -4,7 +4,10 @@ APP_NAME=tinyurl
 compile:
 	go build -C ${APP_NAME} -o `pwd`/${BINARY_NAME}
 
-test:
+run: compile
+	`pwd`/${BINARY_NAME}
+
+test: compile
 	go test -v `pwd`/${APP_NAME}
 
 clean:
