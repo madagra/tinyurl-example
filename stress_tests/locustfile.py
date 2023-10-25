@@ -3,6 +3,7 @@ from pathlib import Path
 import random
 import glob
 import os
+import threading
 
 from locust import HttpUser, task, between
 
@@ -11,6 +12,9 @@ BASE_URL_PROD = "https://mdtiny.net"
 BASE_URL_LOCAL = "http://localhost:3000"
 
 get_url = lambda host, path: f"{host}/{path}"
+
+read_lock = threading.Lock()
+write_lock = threading.Lock()
 
 
 def load_urls() -> list[str]:
@@ -50,12 +54,14 @@ class TinyUrlAppStress(HttpUser):
         resp = self.client.post(
             get_url(self.host, "shorten"), data=body, allow_redirects=False
         )
-        test_url_db[url] = resp.text
+        with write_lock:
+            test_url_db[url] = resp.text
 
     @task(100)
     def redirect(self) -> None:
         try:
-            short_url = random.choice(list(test_url_db.values()))
+            with read_lock:
+                short_url = random.choice(list(test_url_db.values()))
             self.client.get(short_url, allow_redirects=False)
         except IndexError:
             pass
