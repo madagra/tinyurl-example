@@ -1,0 +1,19 @@
+version: '3'
+services:
+  app:
+    image: tinyurl:dev
+    ports:
+     - "3000:3000"
+    volumes:
+      - ./:/app
+  cache:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --loglevel warning
+    volumes: 
+      - cache:/data
+volumes:
+  cache:
+    driver: local    

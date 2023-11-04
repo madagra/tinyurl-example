@@ -26,7 +26,7 @@ func keyGenerator(n int) string {
 
 // shorten the URL by generating a new key from a random set
 // of characters. If a collision is found, the key is regenerated
-func ShortenUrlKeygen(url string, prefix string) (string, string) {
+func ShortenUrlKeygen(url string, prefix string, db DbInterface) (string, string) {
 
 	var newKey string
 	var not_found bool = true
@@ -37,10 +37,10 @@ func ShortenUrlKeygen(url string, prefix string) (string, string) {
 	for not_found {
 
 		newKey = keyGenerator(LenShortUrl)
-		_, exists := UrlKeysDB[newKey]
+		var exists = db.HasKey(newKey)
 
 		if !exists {
-			UrlKeysDB[newKey] = true
+			db.SetKey(newKey)
 			break
 		}
 		log.Println("Found a collision. Regenerating the key...")
@@ -54,7 +54,7 @@ func ShortenUrlKeygen(url string, prefix string) (string, string) {
 // convert a url into its shortened version using
 // base64 encoding with a rotating chunk of the encoding with the
 // desired length
-func ShortenUrlEncoding(url string, prefix string) (string, string) {
+func ShortenUrlEncoding(url string, prefix string, db DbInterface) (string, string) {
 
 	strippedUrl := strings.ReplaceAll(url, "https://", "")
 	strippedUrl = strings.ReplaceAll(strippedUrl, "http://", "")
@@ -64,9 +64,9 @@ func ShortenUrlEncoding(url string, prefix string) (string, string) {
 	for i := 0; i < len(encoded)-LenShortUrl; i++ {
 
 		shortUrl = encoded[i : i+LenShortUrl]
-		_, exists := UrlKeysDB[shortUrl]
+		var exists = db.HasKey(shortUrl)
 		if !exists {
-			UrlKeysDB[shortUrl] = true
+			db.SetKey(shortUrl)
 			break
 		} else {
 			shortUrl = encoded

@@ -1,20 +1,20 @@
 package main
 
 import (
-	"github.com/rs/zerolog/log"
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
 )
+
+var LocalUrlPrefix = "http://localhost:3000/"
+
+var RemoteUrlPrefix = "https://mdtiny.net/"
 
 type UrlToShorten struct {
 	Url string `json:"url" xml:"url" form:"url"`
 }
 
+func CreateServer(urlPrefix string, db DbInterface) *fiber.App {
 
-// TODO: replace all logs with either Logrus or Zerolog to use
-// a level logging library
-
-func CreateServer(urlPrefix string) *fiber.App {
-	
 	app := fiber.New()
 
 	// health check endpoint
@@ -31,14 +31,14 @@ func CreateServer(urlPrefix string) *fiber.App {
 		}
 
 		var shortUrl string
-		if !UrlDB.ExistsInverse(body.Url) {
-			shortUrl, _ = ShortenUrlKeygen(body.Url, urlPrefix)
-			log.Debug().Msgf("URL % s not found", body.Url)
-			UrlDB.Insert(shortUrl, body.Url)
+		if !db.ExistLongUrl(body.Url) {
+			shortUrl, _ = ShortenUrlKeygen(body.Url, urlPrefix, db)
+			db.StoreShortUrl(shortUrl, body.Url)
+			log.Debug().Msgf("URL not found: %s", body.Url)
 
 		} else {
-			shortUrl, _ = UrlDB.GetInverse(body.Url)
-			log.Debug().Msgf("Already in DB: %s", shortUrl)
+			shortUrl = db.RetrieveShortUrl(body.Url)
+			log.Debug().Msgf("URL already in DB: %s", shortUrl)
 		}
 
 		return c.Status(fiber.StatusOK).SendString(shortUrl)
@@ -48,9 +48,9 @@ func CreateServer(urlPrefix string) *fiber.App {
 
 		var shortUrl string = c.Context().URI().String()
 
-		if UrlDB.Exists(shortUrl) {
-			longUrl, _ := UrlDB.Get(shortUrl)
-				log.Debug().Msgf("Long URL: %s", longUrl)
+		if db.ExistShortUrl(shortUrl) {
+			var longUrl = db.RetrieveLongUrl(shortUrl)
+			log.Debug().Msgf("Long URL: found: %s", longUrl)
 			return c.Status(fiber.StatusOK).Redirect(longUrl)
 		} else {
 			return c.Status(fiber.StatusNotFound).SendString("The requested URL does not exist!")

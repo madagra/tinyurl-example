@@ -14,9 +14,12 @@ var exampleUrls = []string{
 }
 
 func TestShortenEncoding(t *testing.T) {
+
+	var dbClient = initTestDb(t)
+
 	for _, url := range exampleUrls {
 
-		shortUrl, _ := ShortenUrlEncoding(url, LocalUrlPrefix)
+		shortUrl, _ := ShortenUrlEncoding(url, LocalUrlPrefix, dbClient)
 
 		if len(shortUrl) > len(LocalUrlPrefix)+LenShortUrl {
 			t.Errorf("Encoding URL did not work: %s", shortUrl)
@@ -24,25 +27,26 @@ func TestShortenEncoding(t *testing.T) {
 
 	}
 
-	if len(UrlKeysDB) != len(exampleUrls) {
-		t.Errorf("Database has not been updated correctly: %d != %d", len(UrlKeysDB), len(exampleUrls))
+	if len(dbClient.urlKeysDB) != len(exampleUrls) {
+		t.Errorf("Database has not been updated correctly: %d != %d", len(dbClient.urlKeysDB), len(exampleUrls))
 	}
 
-	t.Cleanup(PurgeUrlDB)
 }
 
 func TestShortenKeygen(t *testing.T) {
+
+	var dbClient = initTestDb(t)
+
 	for _, url := range exampleUrls {
 
-		shortUrl, _ := ShortenUrlKeygen(url, LocalUrlPrefix)
+		shortUrl, _ := ShortenUrlKeygen(url, LocalUrlPrefix, dbClient)
 		if len(shortUrl) > len(LocalUrlPrefix)+LenShortUrl {
 			t.Errorf("Encoding URL did not work: %s", shortUrl)
 		}
 	}
 
-	if len(UrlKeysDB) != len(exampleUrls) {
-		t.Errorf("Database has not been updated correctly: %d != %d", len(UrlKeysDB), len(exampleUrls))
+	if len(dbClient.urlKeysDB) != len(exampleUrls) {
+		t.Errorf("Database has not been updated correctly: %d != %d", len(dbClient.urlKeysDB), len(exampleUrls))
 	}
 
-	t.Cleanup(PurgeUrlDB)
 }

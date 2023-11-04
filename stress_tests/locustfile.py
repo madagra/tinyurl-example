@@ -4,8 +4,10 @@ import random
 import glob
 import os
 import threading
+import time
+from functools import lru_cache
 
-from locust import HttpUser, task, between
+from locust import FastHttpUser, HttpUser, task, between
 
 BASE_URL_PROD = "https://mdtiny.net"
 
@@ -17,6 +19,7 @@ read_lock = threading.Lock()
 write_lock = threading.Lock()
 
 
+@lru_cache(maxsize=10)
 def load_urls() -> list[str]:
     path_data = Path(".") / "data"
     res = []
@@ -34,7 +37,7 @@ def load_urls() -> list[str]:
     return res
 
 
-list_urls = load_urls()
+# list_urls = load_urls()
 
 test_url_db = {}
 
@@ -43,13 +46,26 @@ class TinyUrlAppStress(HttpUser):
     host = BASE_URL_LOCAL
     wait_time = between(1, 10)
 
+    _urls = load_urls()
+    _db = {}
+
     @task(10)
     def health_check(self) -> None:
         self.client.get(get_url(self.host, ""))
 
     @task(100)
+    def shorten_and_redirect(self) -> None:
+        url = random.choice(self._urls)
+        body = {"url": url}
+        resp = self.client.post(
+            get_url(self.host, "shorten"), data=body, allow_redirects=False
+        )
+        time.sleep(0.1)
+        self.client.get(resp.text, allow_redirects=False)
+
+    @task(1)
     def shorten_url(self) -> None:
-        url = random.choice(list_urls)
+        url = random.choice(self._urls)
         body = {"url": url}
         resp = self.client.post(
             get_url(self.host, "shorten"), data=body, allow_redirects=False
@@ -57,7 +73,7 @@ class TinyUrlAppStress(HttpUser):
         with write_lock:
             test_url_db[url] = resp.text
 
-    @task(100)
+    @task(1)
     def redirect(self) -> None:
         try:
             with read_lock:
