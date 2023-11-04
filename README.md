@@ -30,6 +30,10 @@ python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 
+# increase temporarily the maximum number of
+# file descriptors allowed
+ulimit -n 50000
+
 # run the Locust GUI on the localhost
 locust
 

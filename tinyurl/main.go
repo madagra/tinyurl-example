@@ -33,5 +33,5 @@ func main() {
 
 	log.Debug().Msg("Starting server")
 	app := CreateServer(urlPrefix, client)
-	app.Listen(fmt.Sprintf(":%d", AppPort))
+	app.Listen(fmt.Sprintf("0.0.0.0:%d", AppPort))
 }
