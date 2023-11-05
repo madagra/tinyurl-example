@@ -5,10 +5,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var LocalUrlPrefix = "http://localhost:3000/"
-
-var RemoteUrlPrefix = "https://mdtiny.net/"
-
 type UrlToShorten struct {
 	Url string `json:"url" xml:"url" form:"url"`
 }

@@ -3,20 +3,20 @@ from pathlib import Path
 import random
 import glob
 import os
-import threading
 import time
 from functools import lru_cache
 
 from locust import HttpUser, task, between, events
 
-BASE_URL_PROD = "https://mdtiny.net"
 
-BASE_URL_LOCAL = "http://localhost:3000"
+CLOUD_ADDRESS = "mdtiny.net"
+DOCKER_ADDRESS = "172.17.0.1"
+LOCAL_ADDRESS = "localhost"
+
+BASE_URL_PROD = f"https://{CLOUD_ADDRESS}"
+BASE_URL_LOCAL = f"http://{DOCKER_ADDRESS}:3000"
 
 get_url = lambda host, path: f"{host}/{path}"
-
-read_lock = threading.Lock()
-write_lock = threading.Lock()
 
 
 @lru_cache(maxsize=10)
@@ -49,21 +49,19 @@ def on_test_start(environment, **kwargs):
 
 
 class TinyUrlAppStress(HttpUser):
-    host = BASE_URL_LOCAL
+    app_host = BASE_URL_LOCAL
     wait_time = between(1, 10)
-
-    _db = {}
 
     @task(1)
     def health_check(self) -> None:
-        self.client.get(get_url(self.host, ""))
+        self.client.get(get_url(self.app_host, ""))
 
     @task(30)
     def shorten_and_redirect(self) -> None:
         url = random.choice(list_urls)
         body = {"url": url}
         resp = self.client.post(
-            get_url(self.host, "shorten"), data=body, allow_redirects=False
+            get_url(self.app_host, "shorten"), data=body, allow_redirects=False
         )
         time.sleep(0.1)
         self.client.get(resp.text, allow_redirects=False)
@@ -73,16 +71,14 @@ class TinyUrlAppStress(HttpUser):
         url = random.choice(list_urls)
         body = {"url": url}
         resp = self.client.post(
-            get_url(self.host, "shorten"), data=body, allow_redirects=False
+            get_url(self.app_host, "shorten"), data=body, allow_redirects=False
         )
-        with write_lock:
-            test_url_db[url] = resp.text
+        test_url_db[url] = resp.text
 
     @task(10)
     def redirect(self) -> None:
         try:
-            with read_lock:
-                short_url = random.choice(list(test_url_db.values()))
+            short_url = random.choice(list(test_url_db.values()))
             self.client.get(short_url, allow_redirects=False)
         except IndexError:
             pass
