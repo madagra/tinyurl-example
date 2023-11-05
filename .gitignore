@@ -24,3 +24,4 @@ app
 
 venv*
 __pycache__
+stress_tests/results

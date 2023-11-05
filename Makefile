@@ -5,7 +5,7 @@ compile:
 	go build -C ${APP_NAME} -o `pwd`/${BINARY_NAME}
 
 run: compile
-	`pwd`/${BINARY_NAME}
+	`pwd`/${BINARY_NAME} --local
 
 test: compile
 	go test -v `pwd`/${APP_NAME}
