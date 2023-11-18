@@ -17,7 +17,7 @@ var TestUrlPrefix = "http://example.com/"
 
 func TestHealthEndpoint(t *testing.T) {
 
-	var dbClient = initTestDb(t)
+	var dbClient = initLocalTestDb(t)
 
 	app := CreateServer(TestUrlPrefix, dbClient)
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -35,7 +35,7 @@ func TestHealthEndpoint(t *testing.T) {
 
 func TestShortenEndpoint(t *testing.T) {
 
-	var dbClient = initTestDb(t)
+	var dbClient = initLocalTestDb(t)
 
 	app := CreateServer(TestUrlPrefix, dbClient)
 	req := httptest.NewRequest(http.MethodPost, "/shorten", nil)
@@ -52,7 +52,7 @@ func TestShortenEndpoint(t *testing.T) {
 
 func TestRedirectEndpoint(t *testing.T) {
 
-	var dbClient = initTestDb(t)
+	var dbClient = initLocalTestDb(t)
 
 	var shortenedUrl, _ = ShortenUrlKeygen(urlToShorten, TestUrlPrefix, dbClient)
 	dbClient.StoreShortUrl(shortenedUrl, urlToShorten)

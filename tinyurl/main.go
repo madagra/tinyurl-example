@@ -20,6 +20,7 @@ func main() {
 	isDebug := flag.Bool("debug", false, "sets log level to debug")
 	isLocal := flag.Bool("local", false, "sets whether is local deployment or not")
 	isDocker := flag.Bool("docker", false, "sets whether using Docker deployment")
+	useRedis := flag.Bool("redis", false, "sets whether to use Redis database")
 
 	flag.Parse()
 
@@ -31,9 +32,15 @@ func main() {
 
 	log.Info().Msgf("Docker deployment: %t", *isDocker)
 	log.Info().Msgf("Local deployment: %t", *isLocal)
+	log.Info().Msgf("Using Redis database: %t", *useRedis)
 
 	// DB client and context
-	client := GetLocalDbClient()
+	var client DbInterface
+	if *useRedis {
+		client = GetRedisDbClient(*isLocal)
+	} else {
+		client = GetLocalDbClient()
+	}
 
 	// set the URL prefix for the application
 	// depending on the deployment environment

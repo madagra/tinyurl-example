@@ -15,7 +15,7 @@ var exampleUrls = []string{
 
 func TestShortenEncoding(t *testing.T) {
 
-	var dbClient = initTestDb(t)
+	var dbClient = initLocalTestDb(t)
 
 	for _, url := range exampleUrls {
 
@@ -35,7 +35,7 @@ func TestShortenEncoding(t *testing.T) {
 
 func TestShortenKeygen(t *testing.T) {
 
-	var dbClient = initTestDb(t)
+	var dbClient = initLocalTestDb(t)
 
 	for _, url := range exampleUrls {
 
