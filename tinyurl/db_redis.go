@@ -87,11 +87,11 @@ func (client RedisDbClient) StoreShortUrl(shortUrl string, longUrl string) {
 		shortUrl: longUrl,
 	}
 
-	err1 := client.client.HSet(client.context, longToShortH, directVal)
-	err2 := client.client.HSet(client.context, shortToLongH, inverseVal)
+	_, err1 := client.client.HSet(client.context, longToShortH, directVal).Result()
+	_, err2 := client.client.HSet(client.context, shortToLongH, inverseVal).Result()
 
 	if err1 != nil || err2 != nil {
-		log.Error().Msgf("Error storing short and/or long URLs: %s, %s", err1.Err().Error(), err2.Err().Error())
+		log.Error().Msgf("Error storing short and/or long URLs: %s, %s", err1, err2)
 		return
 	}
 

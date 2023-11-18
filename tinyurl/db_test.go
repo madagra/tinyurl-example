@@ -54,7 +54,42 @@ func TestRedisStoreAndExistsKey(t *testing.T) {
 	
 }
 
-// TODO
 func TestRedisStoreAndExistsUrls(t *testing.T) {
+
+	const wrongUrl = "wrongUrl"
+
+	client := initRedisTestDb(t)
+
+	client.StoreShortUrl(testShortUrl, testLongUrl)
+	existLong := client.ExistLongUrl(testLongUrl)
+	existShort := client.ExistShortUrl(testShortUrl)
+
+	if !existLong || !existShort {
+		t.Errorf("Failed storing URLs %s, %s in the DB", testLongUrl, testShortUrl)
+	}
+
+	existWrong1 := client.ExistLongUrl(wrongUrl)
+	existWrong2 := client.ExistShortUrl(wrongUrl)
+
+	if existWrong1 || existWrong2 {
+		t.Errorf("Wrong URL found in DB: %s", wrongUrl)
+	}
+
+}
+
+func TestRedisRetrieveUrls(t *testing.T) {
+	client := initRedisTestDb(t)
+
+	client.StoreShortUrl(testShortUrl, testLongUrl)
 	
+	var long string = client.RetrieveLongUrl(testShortUrl) 
+	var short string = client.RetrieveShortUrl(testLongUrl)
+
+	if short != testShortUrl {
+		t.Errorf("Error retrieving short URL %s, found %s", testShortUrl, short)
+	}
+
+	if long != testLongUrl {
+		t.Errorf("Error retrieving long URL %s, found %s", testLongUrl, long)
+	}
 }
