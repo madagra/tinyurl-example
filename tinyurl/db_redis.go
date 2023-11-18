@@ -12,7 +12,6 @@ var longToShortH string = "long:to:short"
 var shortToLongH string = "short:to:long"
 var keyH = "url:key"
 
-
 // no key expiration since Redis is used as a database here
 const CacheDuration = 0
 
@@ -22,14 +21,10 @@ type RedisDbClient struct {
 	context context.Context
 }
 
-func GetRedisDbClient(isLocal bool) *RedisDbClient {
+func GetRedisDbClient() *RedisDbClient {
 
-	var addr string
-	if isLocal {
-		addr = LocalDbAddr
-	} else {
-		addr = RemoteDbAddr
-	}
+	var addr string = GetDbAddress()
+	log.Debug().Msgf("Address Redis: %s", addr)
 
 	client := redis.NewClient(&redis.Options{
 		Addr:     addr,
@@ -55,6 +50,7 @@ func GetRedisDbClient(isLocal bool) *RedisDbClient {
 func (client RedisDbClient) ExistLongUrl(url string) bool {
 
 	exists, err := client.client.HExists(client.context, longToShortH, url).Result()
+	log.Debug().Msgf("Result from Redis HEXIST with key %s: %s, %t, %v", longToShortH, url, exists, err)
 	if err != nil {
 		log.Error().Msgf("Error checking long URL existence: %s", err.Error())
 		return false
@@ -66,6 +62,7 @@ func (client RedisDbClient) ExistLongUrl(url string) bool {
 func (client RedisDbClient) ExistShortUrl(url string) bool {
 
 	exists, err := client.client.HExists(client.context, shortToLongH, url).Result()
+	log.Debug().Msgf("Result from Redis HEXIST with key %s: %s, %t, %v", shortToLongH, url, exists, err)
 	if err != nil {
 		log.Error().Msgf("Error checking short URL existence: %s", err.Error())
 		return false
@@ -138,6 +135,6 @@ func (client RedisDbClient) SetKey(newKey string) string {
 	if err != nil {
 		log.Error().Msgf("Error setting key %s", newKey)
 	}
-	
+
 	return res
 }

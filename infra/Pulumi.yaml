@@ -1,6 +1,6 @@
-name: infra
+name: tinyurl
 runtime:
   name: python
   options:
     virtualenv: venv
-description: Infra for tinyurl app
+description: TinyURL infrastructure

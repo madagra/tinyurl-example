@@ -7,7 +7,6 @@ import (
 var testLongUrl string = "https://learn.cantrill.io/courses/enrolled/1820301"
 var testShortUrl string = "https://mdtiny.net/abcdef"
 
-
 func initLocalTestDb(t *testing.T) LocalDbClient {
 	var dbClient = GetLocalDbClient()
 
@@ -24,7 +23,7 @@ func initLocalTestDb(t *testing.T) LocalDbClient {
 }
 
 func initRedisTestDb(t *testing.T) RedisDbClient {
-	var dbClient = GetRedisDbClient(true)
+	var dbClient = GetRedisDbClient()
 
 	t.Cleanup(func() {
 		dbClient.client.FlushAll(dbClient.context)
@@ -39,7 +38,7 @@ func TestRedisStoreAndExistsKey(t *testing.T) {
 	const wrongKey = "wrongKey"
 
 	client := initRedisTestDb(t)
-	
+
 	client.SetKey(testKey)
 	exists1 := client.HasKey(testKey)
 	exists2 := client.HasKey(wrongKey)
@@ -47,11 +46,11 @@ func TestRedisStoreAndExistsKey(t *testing.T) {
 	if !exists1 {
 		t.Errorf("Key %s not found in the database", testKey)
 	}
-	
+
 	if exists2 {
 		t.Errorf("Wrong key %s found in the database", wrongKey)
 	}
-	
+
 }
 
 func TestRedisStoreAndExistsUrls(t *testing.T) {
@@ -81,8 +80,8 @@ func TestRedisRetrieveUrls(t *testing.T) {
 	client := initRedisTestDb(t)
 
 	client.StoreShortUrl(testShortUrl, testLongUrl)
-	
-	var long string = client.RetrieveLongUrl(testShortUrl) 
+
+	var long string = client.RetrieveLongUrl(testShortUrl)
 	var short string = client.RetrieveShortUrl(testLongUrl)
 
 	if short != testShortUrl {

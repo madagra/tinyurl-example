@@ -9,4 +9,4 @@ COPY ./tinyurl ./
 RUN go build -v -o tinyurl
 
 EXPOSE 3000
-CMD ["/app/tinyurl"]
+CMD ["/app/tinyurl", "-redis"]

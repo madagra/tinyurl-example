@@ -3,10 +3,9 @@ from pathlib import Path
 import random
 import glob
 import os
-import time
 from functools import lru_cache
 
-from locust import HttpUser, task, between, events
+from locust import FastHttpUser, task, between, events
 
 
 CLOUD_ADDRESS = "mdtiny.net"
@@ -40,30 +39,37 @@ def load_urls() -> list[str]:
 list_urls = None
 test_url_db = {}
 
+
 @events.test_start.add_listener
 def on_test_start(environment, **kwargs):
-
     global list_urls
     list_urls = load_urls()
     print(f"Populated list with {len(list_urls)} URLs")
 
 
-class TinyUrlAppStress(HttpUser):
-    app_host = BASE_URL_LOCAL
-    wait_time = between(1, 10)
+class TinyUrlAppStress(FastHttpUser):
+    # base host for running the stress tests
+    host = BASE_URL_PROD
+
+    # configuration
+    max_retries = 10
+    max_redirects = 3
+    wait_time = between(1, 5)
+    connection_timeout = 120.0
+    concurrency = 15
 
     @task(1)
     def health_check(self) -> None:
-        self.client.get(get_url(self.app_host, ""))
+        self.client.get(get_url(self.host, ""))
 
-    @task(30)
+    @task(10)
     def shorten_and_redirect(self) -> None:
         url = random.choice(list_urls)
         body = {"url": url}
         resp = self.client.post(
-            get_url(self.app_host, "shorten"), data=body, allow_redirects=False
+            get_url(self.host, "shorten"), data=body, allow_redirects=False
         )
-        time.sleep(0.1)
+        # time.sleep(0.1)
         self.client.get(resp.text, allow_redirects=False)
 
     @task(10)
@@ -71,7 +77,7 @@ class TinyUrlAppStress(HttpUser):
         url = random.choice(list_urls)
         body = {"url": url}
         resp = self.client.post(
-            get_url(self.app_host, "shorten"), data=body, allow_redirects=False
+            get_url(self.host, "shorten"), data=body, allow_redirects=False
         )
         test_url_db[url] = resp.text
 

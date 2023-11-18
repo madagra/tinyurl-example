@@ -1,19 +1,22 @@
 version: '3'
 services:
   app:
+    build: .
     image: tinyurl:dev
     ports:
      - "3000:3000"
-    volumes:
-      - ./:/app
+    environment:
+      - DB_ADDRESS=cache:6379
+    command: /app/tinyurl -redis -local
   cache:
     image: redis:7-alpine
     restart: always
     ports:
       - '6379:6379'
     command: redis-server --loglevel warning
-    volumes: 
-      - cache:/data
-volumes:
-  cache:
-    driver: local    
+# enable persistence of the Redis data
+#     volumes: 
+#       - cache:/data
+# volumes:
+#   cache:
+#     driver: local    

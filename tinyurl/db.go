@@ -1,9 +1,9 @@
 package main
 
-var LocalDbAddr = "localhost:6379"
+import "os"
 
-// TODO
-var RemoteDbAddr = "localhost:6379"
+var DbAddrEnv = "DB_ADDRESS"
+var LocalDbAddr = "localhost:6379"
 
 type DbInterface interface {
 	ExistLongUrl(url string) bool
@@ -13,4 +13,17 @@ type DbInterface interface {
 	StoreShortUrl(shortUrl string, longUrl string)
 	HasKey(key string) bool
 	SetKey(newKey string) string
+}
+
+func GetDbAddress() string {
+
+	var dbAddress string
+
+	value, exists := os.LookupEnv(DbAddrEnv)
+	if exists {
+		dbAddress = value
+	} else {
+		dbAddress = LocalDbAddr
+	}
+	return dbAddress
 }

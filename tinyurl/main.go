@@ -10,18 +10,18 @@ import (
 const (
 	LocalUrlPrefix  string = "http://localhost:3000/"
 	DockerUrlPrefix string = "http://172.17.0.1:3000/"
-	RemoteUrlPrefix string = "https://mdtiny.net/"
+	RemoteUrlPrefix string = "http://mdtiny.net/"
 	AppPort         int    = 3000
 )
 
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
+	// command line flags
 	isDebug := flag.Bool("debug", false, "sets log level to debug")
 	isLocal := flag.Bool("local", false, "sets whether is local deployment or not")
 	isDocker := flag.Bool("docker", false, "sets whether using Docker deployment")
 	useRedis := flag.Bool("redis", false, "sets whether to use Redis database")
-
 	flag.Parse()
 
 	// logging
@@ -37,7 +37,7 @@ func main() {
 	// DB client and context
 	var client DbInterface
 	if *useRedis {
-		client = GetRedisDbClient(*isLocal)
+		client = GetRedisDbClient()
 	} else {
 		client = GetLocalDbClient()
 	}

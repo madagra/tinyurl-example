@@ -1,6 +1,7 @@
 # TinyURL sample project 
 
-Sample project to experiment with the system design with a TinyURL application
+Sample project to experiment with the system design with a TinyURL application. For running the application
+locally via Docker, simple execute: `docker compose up --build`.
 
 ## Test the application locally
 
@@ -18,6 +19,14 @@ resp = requests.post(get_url(BASE_URL_LOCAL, "shorten"), json=myobj)
 # redirect
 short_url = resp.text
 requests.get(x.text, allow_redirects=True)
+```
+
+## Cloud deployment
+
+Restart the service:
+
+```shell
+aws ecs update-service --cluster tinyurl-cluster-08ded60 --service tinyurl-service-c815547 --force-new-deployment
 ```
 
 ## Run stress tests
