@@ -67,7 +67,6 @@ func CreateServer(urlPrefix string, db DBManager) (*fiber.App, []fiber.Router) {
 	app := fiber.New()
 
 	// create routes
-
 	healthRouter := health(app)
 	shortenRouter := shorten(app, urlPrefix, db)
 	redirectRouter := redirect(app, db)

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+spec:
+  selector:
+    matchLabels:
+      app: redis 
+  replicas: 2  
+  template:
+    metadata:
+      labels:
+        app: redis 
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        ports:
+          - containerPort: 6379
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tinyurl-deployment
+spec:
+  selector:
+    matchLabels:
+      app: tinyurl
+  replicas: 2  
+  template:
+    metadata:
+      labels:
+        app: tinyurl
+    spec:
+      containers:
+      - name: tinyurl
+        image: madagra/tinyurl:dev
+        imagePullPolicy: Always
+        command: ["/app/tinyurl", "-redis", "-debug"]
+        env:
+          - name: DB_ADDRESS
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: DB_ADDRESS
+        ports:
+          - containerPort: 3000
