@@ -10,7 +10,6 @@ import (
 
 var longToShortH string = "long:to:short"
 var shortToLongH string = "short:to:long"
-var keyH = "url:key"
 
 // no key expiration since Redis is used as a database here
 const CacheDuration = 0
@@ -72,23 +71,23 @@ func (client RedisDbClient) ExistShortUrl(url string) bool {
 }
 
 func (client RedisDbClient) StoreShortUrl(shortUrl string, longUrl string) {
+	// set both direct and inverse mapping with two different hash sets
 
-	// set both direct and inverse mapping
-	// with two different hash sets
-
-	directVal := map[string]interface{}{
+	directVal := map[string]string{
 		longUrl: shortUrl,
 	}
 
-	inverseVal := map[string]interface{}{
+	inverseVal := map[string]string{
 		shortUrl: longUrl,
 	}
 
-	_, err1 := client.client.HSet(client.context, longToShortH, directVal).Result()
-	_, err2 := client.client.HSet(client.context, shortToLongH, inverseVal).Result()
+	if _, err := client.client.HSet(client.context, longToShortH, directVal).Result(); err != nil {
+		log.Error().Msgf("Error storing long to short URL mapping: %v", err)
+		return
+	}
 
-	if err1 != nil || err2 != nil {
-		log.Error().Msgf("Error storing short and/or long URLs: %s, %s", err1, err2)
+	if _, err := client.client.HSet(client.context, shortToLongH, inverseVal).Result(); err != nil {
+		log.Error().Msgf("Error storing long to short URL mapping: %v", err)
 		return
 	}
 

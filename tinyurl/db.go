@@ -5,7 +5,7 @@ import "os"
 var DbAddrEnv = "DB_ADDRESS"
 var LocalDbAddr = "localhost:6379"
 
-type DbInterface interface {
+type DBManager interface {
 	ExistLongUrl(url string) bool
 	ExistShortUrl(url string) bool
 	RetrieveShortUrl(longUrl string) string

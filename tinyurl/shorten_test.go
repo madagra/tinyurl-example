@@ -21,7 +21,7 @@ func TestShortenEncoding(t *testing.T) {
 
 		shortUrl, _ := ShortenUrlEncoding(url, LocalUrlPrefix, dbClient)
 
-		if len(shortUrl) > len(LocalUrlPrefix)+LenShortUrl {
+		if len(shortUrl) > len(LocalUrlPrefix)+lenShortUrl {
 			t.Errorf("Encoding URL did not work: %s", shortUrl)
 		}
 
@@ -40,7 +40,7 @@ func TestShortenKeygen(t *testing.T) {
 	for _, url := range exampleUrls {
 
 		shortUrl, _ := ShortenUrlKeygen(url, LocalUrlPrefix, dbClient)
-		if len(shortUrl) > len(LocalUrlPrefix)+LenShortUrl {
+		if len(shortUrl) > len(LocalUrlPrefix)+lenShortUrl {
 			t.Errorf("Encoding URL did not work: %s", shortUrl)
 		}
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -35,7 +36,7 @@ func main() {
 	log.Info().Msgf("Using Redis database: %t", *useRedis)
 
 	// DB client and context
-	var client DbInterface
+	var client DBManager
 	if *useRedis {
 		client = GetRedisDbClient()
 	} else {
@@ -56,6 +57,6 @@ func main() {
 	log.Info().Msgf("Application URL: %s", urlPrefix)
 
 	log.Debug().Msg("Starting server")
-	app := CreateServer(urlPrefix, client)
+	app, _ := CreateServer(urlPrefix, client)
 	app.Listen(fmt.Sprintf("0.0.0.0:%d", AppPort))
 }

@@ -10,7 +10,7 @@ import (
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-var LenShortUrl = 10
+var lenShortUrl = 10
 
 func keyGenerator(n int) string {
 
@@ -26,17 +26,14 @@ func keyGenerator(n int) string {
 
 // shorten the URL by generating a new key from a random set
 // of characters. If a collision is found, the key is regenerated
-func ShortenUrlKeygen(url string, prefix string, db DbInterface) (string, string) {
+func ShortenUrlKeygen(url string, prefix string, db DBManager) (string, string) {
 
 	var newKey string
 	var not_found bool = true
 
-	strippedUrl := strings.ReplaceAll(url, "https://", "")
-	strippedUrl = strings.ReplaceAll(strippedUrl, "http://", "")
-
 	for not_found {
 
-		newKey = keyGenerator(LenShortUrl)
+		newKey = keyGenerator(lenShortUrl)
 		var exists = db.HasKey(newKey)
 
 		if !exists {
@@ -54,16 +51,16 @@ func ShortenUrlKeygen(url string, prefix string, db DbInterface) (string, string
 // convert a url into its shortened version using
 // base64 encoding with a rotating chunk of the encoding with the
 // desired length
-func ShortenUrlEncoding(url string, prefix string, db DbInterface) (string, string) {
+func ShortenUrlEncoding(url string, prefix string, db DBManager) (string, string) {
 
 	strippedUrl := strings.ReplaceAll(url, "https://", "")
 	strippedUrl = strings.ReplaceAll(strippedUrl, "http://", "")
 	var encoded string = b64.StdEncoding.EncodeToString([]byte(strippedUrl))
 
 	var shortUrl string
-	for i := 0; i < len(encoded)-LenShortUrl; i++ {
+	for i := 0; i < len(encoded)-lenShortUrl; i++ {
 
-		shortUrl = encoded[i : i+LenShortUrl]
+		shortUrl = encoded[i : i+lenShortUrl]
 		var exists = db.HasKey(shortUrl)
 		if !exists {
 			db.SetKey(shortUrl)

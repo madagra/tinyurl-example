@@ -19,7 +19,7 @@ func TestHealthEndpoint(t *testing.T) {
 
 	var dbClient = initLocalTestDb(t)
 
-	app := CreateServer(TestUrlPrefix, dbClient)
+	app, _ := CreateServer(TestUrlPrefix, dbClient)
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	resp, _ := app.Test(req)
 
@@ -37,7 +37,7 @@ func TestShortenEndpoint(t *testing.T) {
 
 	var dbClient = initLocalTestDb(t)
 
-	app := CreateServer(TestUrlPrefix, dbClient)
+	app, _ := CreateServer(TestUrlPrefix, dbClient)
 	req := httptest.NewRequest(http.MethodPost, "/shorten", nil)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Form = make(url.Values)
@@ -57,7 +57,7 @@ func TestRedirectEndpoint(t *testing.T) {
 	var shortenedUrl, _ = ShortenUrlKeygen(urlToShorten, TestUrlPrefix, dbClient)
 	dbClient.StoreShortUrl(shortenedUrl, urlToShorten)
 
-	app := CreateServer(TestUrlPrefix, dbClient)
+	app, _ := CreateServer(TestUrlPrefix, dbClient)
 
 	var urlKey string = strings.Split(strings.ReplaceAll(shortenedUrl, TestUrlPrefix, ""), ".")[0]
 	req := httptest.NewRequest(http.MethodGet, "/"+urlKey, nil)

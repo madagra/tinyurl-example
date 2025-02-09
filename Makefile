@@ -8,7 +8,9 @@ run: compile
 	`pwd`/${BINARY_NAME} --local
 
 test: compile
+	docker compose up -d
 	go test -v `pwd`/${APP_NAME}
+	docker compose down --volumes
 
 clean:
 	go clean
